@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Rails Blog App" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+
+  <!-- Navigation -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <strong><a href="/">Rails Blog</a></strong>
+      </div>
+
+      <div class="navbar-right">
+        <% if user_signed_in? %>
+          Hello <%= current_user.username %> |
+          <%= link_to 'New Blog', new_blog_path %> |
+          <%= link_to 'Logout', destroy_user_session_path, method: :delete, data: { turbo_method: :delete } %>
+        <% else %>
+          <%= link_to 'Sign In', new_user_session_path %> |
+          <%= link_to 'Register', new_user_registration_path %>
+        <% end %>
+      </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <% if notice %>
+      <p style="color: green; text-align: center;"><%= notice %></p>
+    <% end %>
+
+    <% if alert %>
+      <p style="color: red; text-align: center;"><%= alert %></p>
+    <% end %>
+
+    <!-- Main Content -->
+    <%= yield %>
+
+  </body>
+</html>

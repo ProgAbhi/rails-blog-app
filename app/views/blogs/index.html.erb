@@ -1,0 +1,22 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Blogs" %>
+
+<h1 style="text-align: center">Blogs</h1>
+
+<div id="blogs">
+  <% @blogs.each do |blog| %>
+    <div class="blog-card">
+      <h2><%= blog.title %></h2>
+
+      <% if blog.image.attached? %>
+        <%= image_tag url_for(blog.image), alt: "Blog Image", class: "blog-image" %>
+      <% end %>
+      
+      <p><%= truncate(blog.description, length: 150) %></p>
+      <%= link_to "Read More", blog_path(blog), class: "btn" %>
+    </div>
+  <% end %>
+</div>
+
+<%= link_to "New blog", new_blog_path, class: "btn", style: "display: inline-block; margin-top: 1rem;" %>
