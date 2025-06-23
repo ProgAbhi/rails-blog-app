@@ -1,24 +1,54 @@
-# README
+# 📘 Rails Blog App (MySQL)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A simple blog application built with **Ruby on Rails** and **MySQL** as the database. The app allows users to register, log in, and create, update, or delete blog posts. All visitors (including non-logged-in users) can view blogs, but only registered users can manage blogs (CRUD).
 
-Things you may want to cover:
+---
 
-* Ruby version
+## ✨ Features
 
-* System dependencies
+- ✅ User authentication with **Devise** (Register / Login / Logout)
+- ✅ Blog **Create**, **Read**, **Update**, and **Delete** operations (CRUD)
+- ✅ Blogs can include **image uploads** via **Active Storage**
+- ✅ Public blog visibility (viewable without login)
+- ✅ Only logged-in users can **create, edit, or delete** their own blogs
+- ✅ Responsive UI with basic custom CSS styling
 
-* Configuration
+---
 
-* Database creation
+## 📁 Project Structure Overview
 
-* Database initialization
+app/
+ ├── controllers/
+ │     └── blogs_controller.rb
+ ├── models/
+ │     └── blog.rb
+ │     └── user.rb
+ ├── views/
+ │     └── blogs/
+ │           ├── index.html.erb
+ │           ├── show.html.erb
+ │           ├── new.html.erb
+ │           └── _form.html.erb
+ │     └── devise/
+ └── assets/stylesheets/
+       └── application.css
 
-* How to run the test suite
+---
 
-* Services (job queues, cache servers, search engines, etc.)
+## 🛠 Tech Stack
 
-* Deployment instructions
+- **Backend**: Ruby on Rails
+- **Frontend**: Embedded Ruby (ERB), HTML/CSS
+- **Authentication**: Devise
+- **Database**: MySQL
+- **Image Uploads**: Active Storage
 
-* ...
+---
+
+## 🚀 Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/rails-blog-app.git
+cd rails-blog-app
