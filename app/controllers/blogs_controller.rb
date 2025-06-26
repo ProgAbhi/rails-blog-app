@@ -31,7 +31,6 @@ class BlogsController < ApplicationController
 
     respond_to do |format|
       if @blog.save
-        save_tags
         format.html { redirect_to @blog, notice: "Blog was successfully created." }
         format.json { render :show, status: :created, location: @blog }
       else
@@ -45,7 +44,6 @@ class BlogsController < ApplicationController
   def update
     respond_to do |format|
       if @blog.update(blog_params)
-        save_tags
         format.html { redirect_to @blog, notice: "Blog was successfully updated." }
         format.json { render :show, status: :ok, location: @blog }
       else
@@ -72,14 +70,6 @@ class BlogsController < ApplicationController
     end
 
     def blog_params
-      params.require(:blog).permit(:title, :description, :image, :tag_list)
-    end
-
-    # ✅ Save tags from form input
-    def save_tags
-      return unless params[:tag_names]
-
-      tag_names = params[:tag_names].split(",").map(&:strip).reject(&:blank?)
-      @blog.tags = tag_names.map { |name| Tag.find_or_create_by(name: name.downcase) }
+      params.require(:blog).permit(:title, :description, :image)
     end
 end
