@@ -1,0 +1,51 @@
+<%= form_with(model: blog, local: true, html: { multipart: true, class: "blog-form" }) do |f| %>
+  <% if blog.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(blog.errors.count, "error") %> prohibited this blog from being saved:</h2>
+      <ul>
+        <% blog.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :title %><br>
+    <%= f.text_field :title %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :image %><br>
+    <%= f.file_field :image %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description %><br>
+    <%= f.text_area :description %>
+  </div>
+
+  <div data-controller="blog-form">
+    <div id="tags-container" data-blog-form-target="container">
+      <%= f.fields_for :blog_tags do |bt_form| %>
+        <div class="tag-entry">
+          <%= bt_form.fields_for :tag do |tag_form| %>
+            <%= tag_form.label :name, "Tag Name" %>
+            <%= tag_form.text_field :name %>
+          <% end %>
+
+          <%= bt_form.label :rank, "Rank" %>
+          <%= bt_form.number_field :rank %>
+
+          <%= link_to "Remove", "#", class: "remove-tag", data: { action: "click->blog-form#removeTag" } %>
+        </div>
+      <% end %>
+    </div>
+
+    <%= link_to "Add New Tag", "#", class: "button", data: { action: "click->blog-form#addTag" } %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit "Create Blog" %>
+  </div>
+<% end %>
