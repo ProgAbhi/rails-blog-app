@@ -63,3 +63,9 @@ group :test do
 end
 
 gem "devise", "~> 4.9"
+
+# Bulk CSV Upload of Blogs with Tags in Background via Sidekiq
+gem 'sidekiq'
+gem 'redis'
+gem 'sidekiq-status'
+

@@ -1,5 +1,5 @@
 class Blog < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   has_one_attached :image
 
   has_many :blog_tags, dependent: :destroy
@@ -8,4 +8,6 @@ class Blog < ApplicationRecord
   accepts_nested_attributes_for :blog_tags, allow_destroy: true, reject_if: ->(attrs) {
     attrs['tag_attributes'].blank? || attrs['tag_attributes']['name'].blank?
   }
+
+  validates :title, :description, presence: true
 end

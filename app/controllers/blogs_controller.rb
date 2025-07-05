@@ -4,13 +4,29 @@ class BlogsController < ApplicationController
   before_action :correct_user, only: [:edit, :update, :destroy]
   before_action :filter_by_tag, only: [:index]
 
-  # Ensures only the owner can edit/update/delete
-  def correct_user
-    redirect_to blogs_path, alert: "Not authorized" unless @blog.user == current_user
+  # POST /blogs/bulk_upload
+  def bulk_upload
+    if params[:file].present?
+      # Ensure it's a CSV file by MIME type or extension
+      if params[:file].content_type == "text/csv" || File.extname(params[:file].original_filename).downcase == ".csv"
+        sanitized_filename = File.basename(params[:file].original_filename).gsub(/[^\w.\-]/, "_")
+        file_path = Rails.root.join('tmp', sanitized_filename)
+
+        File.open(file_path, 'wb') { |f| f.write(params[:file].read) }
+
+        BulkBlogUploadWorker.perform_async(file_path.to_s, current_user.id)
+        redirect_to blogs_path, notice: "Upload started! It will be processed shortly."
+      else
+        redirect_to blogs_path, alert: "Invalid file format. Please upload a valid CSV file."
+      end
+    else
+      redirect_to blogs_path, alert: "Please upload a CSV file."
+    end
   end
 
   # GET /blogs
   def index
+    @total_blogs = Blog.count
     # @blogs is already set by filter_by_tag
   end
 
@@ -21,15 +37,12 @@ class BlogsController < ApplicationController
   # GET /blogs/new
   def new
     @blog = Blog.new
-    # Prepare nested fields for form
     @blog.blog_tags.build.build_tag
   end
 
   # GET /blogs/1/edit
   def edit
-    if @blog.blog_tags.empty?
-      @blog.blog_tags.build.build_tag
-    end
+    @blog.blog_tags.build.build_tag if @blog.blog_tags.empty?
   end
 
   # POST /blogs
@@ -62,17 +75,30 @@ class BlogsController < ApplicationController
 
   # DELETE /blogs/1
   def destroy
-    @blog.destroy!
-    respond_to do |format|
-      format.html { redirect_to blogs_path, status: :see_other, notice: "Blog was successfully destroyed." }
-      format.json { head :no_content }
+    if @blog.destroy
+      respond_to do |format|
+        format.html { redirect_to blogs_path, status: :see_other, notice: "Blog was successfully destroyed." }
+        format.json { head :no_content }
+      end
+    else
+      redirect_to blogs_path, alert: "Failed to delete blog."
     end
+  rescue => e
+    logger.error "Blog delete failed: #{e.message}"
+    redirect_to blogs_path, alert: "An error occurred while deleting the blog."
   end
 
   private
 
     def set_blog
-      @blog = Blog.find(params[:id])
+      @blog = Blog.find_by(id: params[:id])
+      redirect_to blogs_path, alert: "Blog not found." if @blog.nil?
+    end
+
+    def correct_user
+      unless @blog&.user == current_user
+        redirect_to blogs_path, alert: "Not authorized to perform this action."
+      end
     end
 
     def blog_params
@@ -80,7 +106,7 @@ class BlogsController < ApplicationController
         :title, :description, :image,
         blog_tags_attributes: [
           :id, :rank, :_destroy,
-          tag_attributes: [:id, :name]
+          tag_attributes: [:id, :name, :_destroy]
         ]
       )
     end
@@ -88,9 +114,9 @@ class BlogsController < ApplicationController
     # Filter blogs based on selected tag
     def filter_by_tag
       if params[:tag_id].present?
-        @blogs = Blog.joins(:tags).where(tags: { id: params[:tag_id] }).distinct
+        @blogs = Blog.includes(:tags).joins(:tags).where(tags: { id: params[:tag_id] }).distinct
       else
-        @blogs = Blog.all
+        @blogs = Blog.includes(:tags).all
       end
     end
 end
